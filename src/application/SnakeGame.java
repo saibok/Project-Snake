@@ -48,11 +48,12 @@ public class SnakeGame extends Application {
 	private AnimationTimer animationTimer;
 	private Timer timer;
 	private TimerTask task;
+	
 
 	private boolean isGameInProgress = false;
 	private boolean isGameOver = false;
 	private boolean isPaused = false;
-
+	
 		
 	@Override
 	public void start(Stage primaryStage) throws Exception {
@@ -63,38 +64,20 @@ public class SnakeGame extends Application {
 		graphicsContext = canvas.getGraphicsContext2D();
 		root.getChildren().add(canvas);
 		Scene scene = new Scene(root);
-
+		
 		snake = new Snake(WINDOW_WIDTH, WINDOW_HEIGHT, GRID_BLOCK_SIZE);
 		grid = new Grid(WINDOW_WIDTH, WINDOW_HEIGHT, GRID_BLOCK_SIZE, snake);
 		snake.setHeadLocation(GRID_BLOCK_SIZE, GRID_BLOCK_SIZE);
 
 		drawGrid();
-		
-		startButton = new Button("Start!");
-		startButton.setMinWidth(100);
-		startButton.setMinHeight(36);
+		createAnimationTimer();
+		startButton();
 
 		VBox vBox = new VBox();
 		vBox.prefWidthProperty().bind(canvas.widthProperty());
 		vBox.prefHeightProperty().bind(canvas.heightProperty());
 		vBox.setAlignment(Pos.CENTER);
 		vBox.getChildren().add(startButton);
-
-		startButton.setOnAction(new EventHandler<ActionEvent>() {
-			@Override
-			public void handle(ActionEvent e) {
-				isGameInProgress = true;
-				isGameOver = false;
-				startButton.setVisible(false);
-
-				if (timer == null) {
-					task = createTimerTask();
-					timer = new Timer();
-					timer.scheduleAtFixedRate(task, TASK_UPDATE_DELAY_MS, TASK_UPDATE_PERIOD_MS);
-					animationTimer.start();
-				}
-			}
-		});
 
 		root.getChildren().add(vBox);
 
@@ -113,7 +96,7 @@ public class SnakeGame extends Application {
 			} else if (e.getCode() == KeyCode.P) {
 				if (isPaused) {
 					task = createTimerTask();
-					timer = new Timer("Timer");
+					timer = new Timer();
 					timer.scheduleAtFixedRate(task, TASK_UPDATE_DELAY_MS, TASK_UPDATE_PERIOD_MS);
 					isPaused = false;
 				} else {
@@ -122,11 +105,45 @@ public class SnakeGame extends Application {
 				}
 			}
 		});
-
+		
 		primaryStage.setScene(scene);
 		primaryStage.show();
 
-		animationTimer = new AnimationTimer() {
+		animationTimer.start();
+
+		task = createTimerTask();
+		timer = new Timer();
+		timer.scheduleAtFixedRate(task, TASK_UPDATE_DELAY_MS, TASK_UPDATE_PERIOD_MS);
+	}
+	
+	
+	private Button startButton() {
+				
+		startButton = new Button("Start!");
+		startButton.setMinWidth(100);
+		startButton.setMinHeight(36);
+		
+		startButton.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent e) {
+				isGameInProgress = true;
+				isGameOver = false;
+				startButton.setVisible(false);
+
+				if (timer == null) {
+					task = createTimerTask();
+					timer = new Timer();
+					timer.scheduleAtFixedRate(task, TASK_UPDATE_DELAY_MS, TASK_UPDATE_PERIOD_MS);
+					animationTimer.start();
+				}
+			}
+		});
+		return startButton;
+	}
+	
+	
+	private AnimationTimer createAnimationTimer() {
+		return animationTimer = new AnimationTimer() {
 			@Override
 			public void handle(long timestamp) {
 				if (isGameInProgress) {
@@ -144,11 +161,7 @@ public class SnakeGame extends Application {
 				}
 			}
 		};
-		animationTimer.start();
-
-		task = createTimerTask();
-		timer = new Timer();
-		timer.scheduleAtFixedRate(task, TASK_UPDATE_DELAY_MS, TASK_UPDATE_PERIOD_MS);
+			
 	}
 
 	private TimerTask createTimerTask() {
@@ -198,17 +211,6 @@ public class SnakeGame extends Application {
 		graphicsContext.setFill(Color.BLACK);
 		graphicsContext.fillRect(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
 
-		/*
-		graphicsContext.setStroke(Color.BLACK);
-		graphicsContext.setLineWidth(0.5);
-
-		for (int x = 0; x < WINDOW_WIDTH; x += GRID_BLOCK_SIZE) {
-			graphicsContext.strokeLine(x, 0, x, x + WINDOW_HEIGHT);
-		}
-
-		for (int y = 0; y < WINDOW_HEIGHT; y += GRID_BLOCK_SIZE) {
-			graphicsContext.strokeLine(0, y, y + WINDOW_WIDTH, y);
-		}*/
 	}
 
 	//grafische Darstellung Schlange
